@@ -71,18 +71,18 @@ if not new_released.empty:
     st.subheader("Titles in Global Top 100 Sellers Released in the Past Week")
     st.dataframe(new_released)
 else:
-    st.error(f"There were no new titles on the top 100 released within the week of {curr_tuesday} and {last_tuesday}")
+    st.info(f"There were no new titles on the top 100 released within the week of {curr_tuesday} and {last_tuesday}")
 if not new_entrants.empty:
     st.subheader("First Time Entrant Titles in Global Top 100 Sellers")
     st.dataframe(new_entrants)
 else:
-    st.error(f"There were no new entrants on the top 100 charts for the week of {curr_tuesday} and {last_tuesday}")
+    st.info(f"There were no new entrants on the top 100 charts for the week of {curr_tuesday} and {last_tuesday}")
 
 if not climbers.empty:
     st.subheader("Titles Climbed >15 Ranks Since Last Week on Global Top 100 Sellers")
     st.dataframe(climbers)
 else:
-    st.error(f"There were no titles that climbed >15 ranks on top 100 charts for the week of {curr_tuesday} and {last_tuesday}")
+    st.info(f"There were no titles that climbed >15 ranks on top 100 charts for the week of {curr_tuesday} and {last_tuesday}")
 
 
 # roblox data cleaning
@@ -130,17 +130,17 @@ if not curr_roblox_data.empty:
     st.subheader("Top 10 Roblox Experiences")
     st.dataframe(curr_roblox_data.head(10).drop(columns=roblox_drop_columns))
 else:
-    st.error(f"No Roblox Experiences...contact helen about data?")
+    st.info(f"No Roblox Experiences...contact helen about data?")
 
-if not new_entrants.empty:
+if not roblox_new_entries_df.empty:
     st.subheader("New Roblox Experience Entrants to Top 50")
     st.dataframe(roblox_new_entries_df.drop(columns=roblox_drop_columns))
 else:
-    st.error(f"No New Roblox Experience Entrants into the Top 50 from Last Week")
+    st.info(f"No New Roblox Experience Entrants into the Top 50 from Last Week")
 
 if not climbers.empty:
     st.subheader("Roblox Experiences Released in Past Year in Current Week's Top 50")
     st.dataframe(roblox_new_releases.drop(columns=roblox_drop_columns))
 else:
-    st.error(f"No Roblox Experiences in the Current Week's Top 50 were Released in the Past Year")
+    st.info(f"No Roblox Experiences in the Current Week's Top 50 were Released in the Past Year")
 
