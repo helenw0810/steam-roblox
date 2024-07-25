@@ -97,6 +97,7 @@ def normalize_name(name):
     name = re.sub(r'\[.*?\]', '', name)
     # Remove spaces
     name = name.replace(' ', '')
+    name = re.sub(r'[^a-zA-Z]', '', name)
     # Convert to lower case
     name = name.lower()
     return name
@@ -109,7 +110,8 @@ if not prev_roblox_data.empty:
     old_experiences = set(prev_roblox_data['Normalized Name'])
     new_experiences = set(curr_roblox_data['Normalized Name'])
     roblox_new_entries = new_experiences - old_experiences
-    roblox_new_entries_df = curr_roblox_data[curr_roblox_data['Experience Name'].isin(roblox_new_entries)].sort_index().reset_index(drop=True)
+    print(roblox_new_entries)
+    roblox_new_entries_df = curr_roblox_data[curr_roblox_data['Normalized Name'].isin(roblox_new_entries)].sort_index().reset_index(drop=True)
 
 else:
     roblox_new_entries_df = pd.DataFrame()
@@ -118,7 +120,7 @@ else:
 roblox_new_releases = curr_roblox_data[curr_roblox_data['Release Date'] >= one_year_ago].sort_index().reset_index(drop=True)
 
 # Drop these columns before creating snapshot
-roblox_drop_columns = ['Favourites', 'Likes', 'Dislikes', 'Normalized Name']
+roblox_drop_columns = ['Favourites', 'Likes', 'Dislikes','Normalized Name']
 
 curr_roblox_data["Release Date"] = curr_roblox_data["Release Date"].dt.date
 roblox_new_entries_df["Release Date"] = roblox_new_entries_df["Release Date"].dt.date
@@ -143,3 +145,4 @@ if not climbers.empty:
 else:
     st.info(f"No Roblox Experiences in the Current Week's Top 50 were Released in the Past Year")
 
+st.write("👋 made by your local makers fund intern")
