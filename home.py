@@ -18,7 +18,7 @@ curr_tuesday = pd.to_datetime(steam_sheet_names[0], yearfirst=True)
 last_tuesday = curr_tuesday - pd.DateOffset(weeks=1)
 one_year_ago = curr_tuesday - pd.DateOffset(years=1)
 
-st.info(body = f"🎮 Steam Data scraped on {steam_sheet_names[0]} from Global Top 100 Sellers.  \n 🏠 Roblox Data scraped on {roblox_sheet_names[0]} from Romonitor Top 50 Experiences.")
+st.info(body = f"🎮 Steam Data scraped on {steam_sheet_names[0]} from Global Top 100 Sellers.  \n 🏠 Roblox Data scraped on {roblox_sheet_names[0]} from Romonitor Top 50 Experiences.  \n ")
 
 
 def filter_greater_than(value):
@@ -70,12 +70,12 @@ if not new_released.empty:
     st.subheader("Titles in Global Top 100 Sellers Released in the Past Week")
     st.dataframe(new_released)
 else:
-    st.info(f"There were no new titles on the top 100 released within the week of {curr_tuesday} and {last_tuesday}")
+    st.info(f"There were no new titles on the top 100 released within the past week")
 if not new_entrants.empty:
     st.subheader("First Time Entrant Titles in Global Top 100 Sellers")
     st.dataframe(new_entrants)
 else:
-    st.info(f"There were no new entrants on the top 100 charts for the week of {curr_tuesday} and {last_tuesday}")
+    st.info(f"There were no new entrants on the top 100 charts within the last week")
 
 if not climbers.empty:
     st.subheader("Titles Climbed >15 Ranks Since Last Week on Global Top 100 Sellers")
@@ -145,4 +145,6 @@ if not climbers.empty:
 else:
     st.info(f"No Roblox Experiences in the Current Week's Top 50 were Released in the Past Year")
 
-st.write("👋 made by your local makers fund intern")
+st.warning(body="If any steam game has data fields missing, it is either the steam deck or it's NSFW...", icon="⚠️")
+
+st.write("made by your local :red[makers fund] intern")
