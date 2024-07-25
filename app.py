@@ -18,8 +18,7 @@ curr_tuesday = pd.to_datetime(steam_sheet_names[0], yearfirst=True)
 last_tuesday = curr_tuesday - pd.DateOffset(weeks=1)
 one_year_ago = curr_tuesday - pd.DateOffset(years=1)
 
-st.info(body = f"Steam Data scraped on {steam_sheet_names[0]} from Global Top 100 Sellers.  \n Roblox Data scraped on {roblox_sheet_names[0]} from Romonitor Top 50 Experiences.",
-        icon="🎮")
+st.info(body = f"🎮 Steam Data scraped on {steam_sheet_names[0]} from Global Top 100 Sellers.  \n 🏠 Roblox Data scraped on {roblox_sheet_names[0]} from Romonitor Top 50 Experiences.")
 
 
 def filter_greater_than(value):
