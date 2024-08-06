@@ -16,7 +16,6 @@ def regex_number(string):
     numbers = re.findall(r'\d+', string)
     return numbers[0] if numbers else np.nan
 
-
 st.title("Past Weekly Roblox and Steam Trends")
 
 i=1
@@ -91,14 +90,15 @@ for tab in st.tabs(steam_sheet_names[1:]):
             curr_roblox_data["Rating"] = curr_roblox_data["Rating"]*100
             curr_roblox_data['ID from URL'] = curr_roblox_data["Romonitor Exp ID"].apply(regex_number)
             prev_roblox_ID = []
-            for rob_sheet_name in roblox_sheet_names[1:]:
-                prev_roblox_data = pd.read_excel(roblox_path, sheet_name=rob_sheet_name, skiprows=1)
-                prev_roblox_ID.append(prev_roblox_data["Romonitor Exp ID"].apply(regex_number))
+            if i+1 <= len(roblox_sheet_names):
+                for rob_sheet_name in roblox_sheet_names[i+1:]:
+                    prev_roblox_data = pd.read_excel(roblox_path, sheet_name=rob_sheet_name, skiprows=1)
+                    prev_roblox_ID.append(prev_roblox_data["Romonitor Exp ID"].apply(regex_number))
 
-            prev_roblox_IDs = pd.concat(prev_roblox_ID)
-            print(prev_roblox_ID)
+                prev_roblox_IDs = pd.concat(prev_roblox_ID)
+                print(prev_roblox_ID)
             # Identify new entries into top 50 from previous week
-            if not prev_roblox_data.empty:
+            if prev_roblox_ID:
                 old_experiences = set(prev_roblox_IDs)
                 new_experiences = set(curr_roblox_data['ID from URL'])
                 roblox_new_entries = new_experiences - old_experiences
