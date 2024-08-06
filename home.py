@@ -28,6 +28,10 @@ def filter_greater_than(value):
             return int(value) if int(value) >= 15 else np.nan
     except:
         return np.nan
+    
+def regex_number(string):
+    numbers = re.findall(r'\d+', string)
+    return numbers[0] if numbers else np.nan
 
 steam_data["Game Ranking"] = list(steam_data.index+1)
 steam_data['Game Release Date'] = pd.to_datetime(steam_data['Game Release Date'])
@@ -86,32 +90,40 @@ else:
 
 # roblox data cleaning
 curr_roblox_data["Rating"] = curr_roblox_data["Rating"]*100
-# Read previous week's data
-try:
-    prev_roblox_data = pd.read_excel(roblox_path, sheet_name=1, skiprows=1)
-except:
-    prev_roblox_data = pd.DataFrame()
+# # Read previous week's data
+# try:
+#     prev_roblox_data = pd.read_excel(roblox_path, sheet_name=1, skiprows=1)
+# except:
+#     prev_roblox_data = pd.DataFrame()
 
-def normalize_name(name):
-    # Remove content within brackets
-    name = re.sub(r'\[.*?\]', '', name)
-    # Remove spaces
-    name = name.replace(' ', '')
-    name = re.sub(r'[^a-zA-Z]', '', name)
-    # Convert to lower case
-    name = name.lower()
-    return name
-# Apply the normalization function to the experience names
-prev_roblox_data['Normalized Name'] = prev_roblox_data['Experience Name'].apply(normalize_name)
-curr_roblox_data['Normalized Name'] = curr_roblox_data['Experience Name'].apply(normalize_name)
+# def normalize_name(name):
+#     # Remove content within brackets
+#     name = re.sub(r'\[.*?\]', '', name)
+#     # Remove spaces
+#     name = name.replace(' ', '')
+#     name = re.sub(r'[^a-zA-Z]', '', name)
+#     # Convert to lower case
+#     name = name.lower()
+#     return name
+# # Apply the normalization function to the experience names
+# prev_roblox_data['Normalized Name'] = prev_roblox_data['Experience Name'].apply(normalize_name)
+# curr_roblox_data['Normalized Name'] = curr_roblox_data['Experience Name'].apply(normalize_name)
 
+curr_roblox_data['ID from URL'] = curr_roblox_data["Romonitor Exp ID"].apply(regex_number)
+prev_roblox_ID = []
+for rob_sheet_name in roblox_sheet_names[1:]:
+    prev_roblox_data = pd.read_excel(roblox_path, sheet_name=rob_sheet_name, skiprows=1)
+    prev_roblox_ID.append(prev_roblox_data["Romonitor Exp ID"].apply(regex_number))
+
+prev_roblox_IDs = pd.concat(prev_roblox_ID)
+print(prev_roblox_ID)
 # Identify new entries into top 50 from previous week
 if not prev_roblox_data.empty:
-    old_experiences = set(prev_roblox_data['Normalized Name'])
-    new_experiences = set(curr_roblox_data['Normalized Name'])
+    old_experiences = set(prev_roblox_IDs)
+    new_experiences = set(curr_roblox_data['ID from URL'])
     roblox_new_entries = new_experiences - old_experiences
     print(roblox_new_entries)
-    roblox_new_entries_df = curr_roblox_data[curr_roblox_data['Normalized Name'].isin(roblox_new_entries)].sort_index().reset_index(drop=True)
+    roblox_new_entries_df = curr_roblox_data[curr_roblox_data['ID from URL'].isin(roblox_new_entries)].sort_index().reset_index(drop=True)
 
 else:
     roblox_new_entries_df = pd.DataFrame()
@@ -120,7 +132,7 @@ else:
 roblox_new_releases = curr_roblox_data[curr_roblox_data['Release Date'] >= one_year_ago].sort_index().reset_index(drop=True)
 
 # Drop these columns before creating snapshot
-roblox_drop_columns = ['Favourites', 'Likes', 'Dislikes','Normalized Name']
+roblox_drop_columns = ['Favourites', 'Likes', 'Dislikes','Romonitor Exp ID']
 
 curr_roblox_data["Release Date"] = curr_roblox_data["Release Date"].dt.date
 roblox_new_entries_df["Release Date"] = roblox_new_entries_df["Release Date"].dt.date
@@ -131,7 +143,7 @@ if not curr_roblox_data.empty:
     st.subheader("Top 10 Roblox Experiences")
     st.dataframe(curr_roblox_data.head(10).drop(columns=roblox_drop_columns))
 else:
-    st.info(f"No Roblox Experiences...contact helen about data?")
+    st.info(f"No Roblox Experiences... ask helen.")
 
 if not roblox_new_entries_df.empty:
     st.subheader("New Roblox Experience Entrants to Top 50")
