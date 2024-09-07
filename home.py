@@ -37,6 +37,7 @@ steam_data["Game Ranking"] = list(steam_data.index+1)
 steam_data['Game Release Date'] = pd.to_datetime(steam_data['Game Release Date'])
 reordered_columns =['Game Ranking',
                     'Game',
+                    'Indie',
                     'Game Developer',
                     'Game Publisher',
                     'Game Price USD',
