@@ -34,10 +34,11 @@ def filter_greater_than(value):
 #     return numbers[0] if numbers else np.nan
 
 def regex_number(value):
-    # Convert value to string, then find numbers
-    value = str(value)
-    numbers = re.findall(r'\d+', value)
-    return numbers[0] if numbers else np.nan  # Return the first match if found, else NaN
+    # Ensure value is a string and non-null
+    if isinstance(value, str):
+        numbers = re.findall(r'\d+', value)
+        return numbers[0] if numbers else np.nan  # Return the first match if found, else NaN
+    return np.nan  # Return NaN if the value was not a string
 
 # Ensure 'Game Price USD' column is consistently numeric, converting 'Free to Play' to 0 or NaN
 steam_data['Game Price USD'] = pd.to_numeric(steam_data['Game Price USD'], errors='coerce').fillna(0)

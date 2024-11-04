@@ -12,9 +12,12 @@ steam_sheet_names = pd.ExcelFile(steam_path).sheet_names
 curr_roblox_data = pd.read_excel(roblox_path, sheet_name=0, skiprows=1)
 roblox_sheet_names = pd.ExcelFile(roblox_path).sheet_names
 
-def regex_number(string):
-    numbers = re.findall(r'\d+', string)
-    return numbers[0] if numbers else np.nan
+def regex_number(value):
+    # Check if value is a non-null string, else return NaN
+    if isinstance(value, str):
+        numbers = re.findall(r'\d+', value)
+        return numbers[0] if numbers else np.nan
+    return np.nan  # Return NaN if value is not a valid string
 
 st.title("Past Weekly Roblox and Steam Trends")
 
@@ -108,6 +111,10 @@ for tab in st.tabs(steam_sheet_names[1:]):
             else:
                 roblox_new_entries_df = pd.DataFrame()
 
+            # Ensure 'Release Date' is consistently in datetime format, coercing errors to NaT
+            curr_roblox_data['Release Date'] = pd.to_datetime(curr_roblox_data['Release Date'], errors='coerce')
+
+
             # Identify new releases in the past year that are in the current week's Top 50
             roblox_new_releases = curr_roblox_data[curr_roblox_data['Release Date'] >= one_year_ago].sort_index().reset_index(drop=True)
 
@@ -115,6 +122,11 @@ for tab in st.tabs(steam_sheet_names[1:]):
             roblox_drop_columns = ['Favourites', 'Likes', 'Dislikes','Romonitor Exp ID']
 
             curr_roblox_data["Release Date"] = curr_roblox_data["Release Date"].dt.date
+
+            # Ensure 'Release Date' column is in datetime format in roblox_new_entries_df
+            roblox_new_entries_df["Release Date"] = pd.to_datetime(roblox_new_entries_df["Release Date"], errors='coerce')
+
+            # Then safely access the date component
             roblox_new_entries_df["Release Date"] = roblox_new_entries_df["Release Date"].dt.date
             roblox_new_releases["Release Date"] = roblox_new_releases["Release Date"].dt.date
 
