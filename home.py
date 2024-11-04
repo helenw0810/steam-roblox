@@ -39,6 +39,9 @@ def regex_number(value):
     numbers = re.findall(r'\d+', value)
     return numbers[0] if numbers else np.nan  # Return the first match if found, else NaN
 
+# Ensure 'Game Price USD' column is consistently numeric, converting 'Free to Play' to 0 or NaN
+steam_data['Game Price USD'] = pd.to_numeric(steam_data['Game Price USD'], errors='coerce').fillna(0)
+
 
 steam_data["Game Ranking"] = list(steam_data.index+1)
 steam_data['Game Release Date'] = pd.to_datetime(steam_data['Game Release Date'])
