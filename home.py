@@ -29,9 +29,16 @@ def filter_greater_than(value):
     except:
         return np.nan
     
-def regex_number(string):
-    numbers = re.findall(r'\d+', string)
-    return numbers[0] if numbers else np.nan
+# def regex_number(string):
+#     numbers = re.findall(r'\d+', string)
+#     return numbers[0] if numbers else np.nan
+
+def regex_number(value):
+    # Convert value to string, then find numbers
+    value = str(value)
+    numbers = re.findall(r'\d+', value)
+    return numbers[0] if numbers else np.nan  # Return the first match if found, else NaN
+
 
 steam_data["Game Ranking"] = list(steam_data.index+1)
 steam_data['Game Release Date'] = pd.to_datetime(steam_data['Game Release Date'])
@@ -129,6 +136,10 @@ if not prev_roblox_data.empty:
 
 else:
     roblox_new_entries_df = pd.DataFrame()
+
+# Ensure 'Release Date' is in datetime format
+curr_roblox_data['Release Date'] = pd.to_datetime(curr_roblox_data['Release Date'], errors='coerce')
+roblox_new_entries_df["Release Date"] = pd.to_datetime(roblox_new_entries_df["Release Date"], errors='coerce')
 
 # Identify new releases in the past year that are in the current week's Top 50
 roblox_new_releases = curr_roblox_data[curr_roblox_data['Release Date'] >= one_year_ago].sort_index().reset_index(drop=True)
