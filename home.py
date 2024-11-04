@@ -8,6 +8,9 @@ steam_path = "./data/total_steam_titles.xlsx"
 roblox_path = "./data/total_roblox_experiences.xlsx"
 steam_data = pd.read_excel(steam_path, sheet_name=0)
 steam_sheet_names = pd.ExcelFile(steam_path).sheet_names
+
+steam_data.rename(columns={'Indie Budget Dev': 'Indie Budget Dev (Found Online)'}, inplace=True)
+
 curr_roblox_data = pd.read_excel(roblox_path, sheet_name=0, skiprows=1)
 roblox_sheet_names = pd.ExcelFile(roblox_path).sheet_names
 
@@ -20,6 +23,9 @@ one_year_ago = curr_tuesday - pd.DateOffset(years=1)
 
 st.info(body = f"🎮 Steam Data scraped on {steam_sheet_names[0]} from Global Top 100 Sellers.  \n 🏠 Roblox Data scraped on {roblox_sheet_names[0]} from Romonitor Top 50 Experiences.  \n ")
 
+
+# st.warning(body="💡 Note: The next iteration will add estimated revenue/copies sold.")
+st.warning(body="💡 Note: The next iteration will add estimated revenue/copies sold.")
 
 def filter_greater_than(value):
     try:
@@ -49,7 +55,7 @@ steam_data['Game Release Date'] = pd.to_datetime(steam_data['Game Release Date']
 reordered_columns =['Game Ranking',
                     'Game',
                     'Indie',
-                    'Indie Budget Dev',
+                    'Indie Budget Dev (Found Online)',
                     'Game Developer',
                     'Game Publisher',
                     'Game Price USD',
@@ -76,6 +82,7 @@ climbers = steam_data.dropna(subset=['Climber Filtered']).set_index(["Game Ranki
 new_released["Game Release Date"] = new_released["Game Release Date"].dt.date
 new_entrants["Game Release Date"] = new_entrants["Game Release Date"].dt.date
 climbers["Game Release Date"] = climbers["Game Release Date"].dt.date
+
 
 new_released = new_released.drop(columns=steam_drop_columns)
 new_entrants = new_entrants.drop(columns=steam_drop_columns)
@@ -149,11 +156,13 @@ roblox_new_entries_df["Release Date"] = pd.to_datetime(roblox_new_entries_df["Re
 roblox_new_releases = curr_roblox_data[curr_roblox_data['Release Date'] >= one_year_ago].sort_index().reset_index(drop=True)
 
 # Drop these columns before creating snapshot
-roblox_drop_columns = ['Favourites', 'Likes', 'Dislikes','Romonitor Exp ID']
+roblox_drop_columns = ['Favourites', 'Likes', 'Dislikes','Romonitor Exp ID','ID from URL']
 
 curr_roblox_data["Release Date"] = curr_roblox_data["Release Date"].dt.date
 roblox_new_entries_df["Release Date"] = roblox_new_entries_df["Release Date"].dt.date
 roblox_new_releases["Release Date"] = roblox_new_releases["Release Date"].dt.date
+
+# curr_roblox_data.drop(columns=['ID from URL'], inplace=True)
 
 # steam streamlit dataframes
 if not curr_roblox_data.empty:
