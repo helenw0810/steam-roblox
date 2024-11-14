@@ -6,6 +6,8 @@ import re
 st.set_page_config(layout="wide")
 steam_path = "./data/total_steam_titles.xlsx"
 roblox_path = "./data/total_roblox_experiences.xlsx"
+steam_charts_path = "./data/total_steam_charts.xlsx"
+total_steam_charts = pd.read_excel(steam_charts_path, sheet_name=0)
 steam_data = pd.read_excel(steam_path, sheet_name=0)
 steam_sheet_names = pd.ExcelFile(steam_path).sheet_names
 
@@ -18,8 +20,14 @@ roblox_sheet_names = pd.ExcelFile(roblox_path).sheet_names
 st.title("Weekly Roblox and Steam Trends")
 
 curr_tuesday = pd.to_datetime(steam_sheet_names[0], yearfirst=True)
+
 last_tuesday = curr_tuesday - pd.DateOffset(weeks=1)
 one_year_ago = curr_tuesday - pd.DateOffset(years=1)
+
+# print("Curr_Tuesday")
+# print(curr_tuesday)
+# print("Last_Tuesday")
+# print(last_tuesday)
 
 st.info(body = f"🎮 Steam Data scraped on {steam_sheet_names[0]} from Global Top 100 Sellers.  \n 🏠 Roblox Data scraped on {roblox_sheet_names[0]} from Romonitor Top 50 Experiences.  \n ")
 
@@ -88,8 +96,30 @@ new_released = new_released.drop(columns=steam_drop_columns)
 new_entrants = new_entrants.drop(columns=steam_drop_columns)
 climbers = climbers.drop(columns=steam_drop_columns)
 
+########################################## TOP 10 STEAM GAMES BY 24H PEAK PLAYERS ##########################################
+total_steam_charts = (
+    total_steam_charts.head(10)  # Select top 10 rows
+    .drop(total_steam_charts.columns[:2], axis=1)  # Drop first two columns
+    .sort_values(by='Peak Players', ascending=False)  # Sort by 'Peak Players' descending
+    .reset_index(drop=True)  # Reset index
+)
+total_steam_charts.index += 1  # Make index 1-based
 
-# steam streamlit dataframes
+# Reorder columns: move the third column to the first position
+columns = total_steam_charts.columns.to_list()
+columns = [columns[2], columns[0], columns[1]] + columns[3:]
+# Reorder columns: move 'Game Name' to the first position
+columns = ['Peak Players'] + [col for col in columns if col != 'Peak Players']
+top_10_steam_games_by_24H_peak = total_steam_charts[columns]
+###################################################################################
+
+if not total_steam_charts.empty:
+    st.subheader("Top 10 Steam Games by 24H Peak Players")
+    st.table(top_10_steam_games_by_24H_peak)
+else:
+    st.info("No Steam Charts available.")
+
+
 if not new_released.empty:
     st.subheader("Titles in Global Top 100 Sellers Released in the Past Week")
     st.dataframe(new_released)
@@ -136,13 +166,11 @@ for rob_sheet_name in roblox_sheet_names[1:]:
     prev_roblox_ID.append(prev_roblox_data["Romonitor Exp ID"].apply(regex_number))
 
 prev_roblox_IDs = pd.concat(prev_roblox_ID)
-print(prev_roblox_ID)
 # Identify new entries into top 50 from previous week
 if not prev_roblox_data.empty:
     old_experiences = set(prev_roblox_IDs)
     new_experiences = set(curr_roblox_data['ID from URL'])
     roblox_new_entries = new_experiences - old_experiences
-    print(roblox_new_entries)
     roblox_new_entries_df = curr_roblox_data[curr_roblox_data['ID from URL'].isin(roblox_new_entries)].sort_index().reset_index(drop=True)
 
 else:
@@ -182,6 +210,15 @@ if not climbers.empty:
     st.dataframe(roblox_new_releases.drop(columns=roblox_drop_columns))
 else:
     st.info(f"No Roblox Experiences in the Current Week's Top 50 were Released in the Past Year")
+
+# New section to share lists
+
+# if not climbers.empty:
+#     st.subheader("List of Steam Titles Climbed >15 Ranks:")
+#     st.dataframe(climbers[['Game', 'Climber Filtered']])
+# else:
+#     st.info("No Steam Titles Climbed >15 Ranks.")
+
 
 st.warning(body="If any steam game has data fields missing, it is either the steam deck or it's NSFW...", icon="⚠️")
 
