@@ -14,6 +14,7 @@ steam_sheet_names = pd.ExcelFile(steam_path).sheet_names
 steam_data.rename(columns={'Indie Budget Dev': 'Indie Budget Dev (Found Online)'}, inplace=True)
 
 curr_roblox_data = pd.read_excel(roblox_path, sheet_name=0, skiprows=1)
+prev_roblox_data = pd.read_excel(roblox_path, sheet_name=1, skiprows=1)
 roblox_sheet_names = pd.ExcelFile(roblox_path).sheet_names
 
 # Streamlit Titel
@@ -91,7 +92,6 @@ new_released["Game Release Date"] = new_released["Game Release Date"].dt.date
 new_entrants["Game Release Date"] = new_entrants["Game Release Date"].dt.date
 climbers["Game Release Date"] = climbers["Game Release Date"].dt.date
 
-
 new_released = new_released.drop(columns=steam_drop_columns)
 new_entrants = new_entrants.drop(columns=steam_drop_columns)
 climbers = climbers.drop(columns=steam_drop_columns)
@@ -109,7 +109,7 @@ total_steam_charts.index += 1  # Make index 1-based
 columns = total_steam_charts.columns.to_list()
 columns = [columns[2], columns[0], columns[1]] + columns[3:]
 # Reorder columns: move 'Game Name' to the first position
-columns = ['Peak Players'] + [col for col in columns if col != 'Peak Players']
+columns = ['Game Name'] + [col for col in columns if col != 'Game Name']
 top_10_steam_games_by_24H_peak = total_steam_charts[columns]
 ###################################################################################
 
@@ -118,7 +118,6 @@ if not total_steam_charts.empty:
     st.table(top_10_steam_games_by_24H_peak)
 else:
     st.info("No Steam Charts available.")
-
 
 if not new_released.empty:
     st.subheader("Titles in Global Top 100 Sellers Released in the Past Week")
@@ -136,7 +135,6 @@ if not climbers.empty:
     st.dataframe(climbers)
 else:
     st.info(f"There were no titles that climbed >15 ranks on top 100 charts for the week of {curr_tuesday} and {last_tuesday}")
-
 
 # roblox data cleaning
 curr_roblox_data["Rating"] = curr_roblox_data["Rating"]*100
@@ -160,21 +158,13 @@ curr_roblox_data["Rating"] = curr_roblox_data["Rating"]*100
 # curr_roblox_data['Normalized Name'] = curr_roblox_data['Experience Name'].apply(normalize_name)
 
 curr_roblox_data['ID from URL'] = curr_roblox_data["Romonitor Exp ID"].apply(regex_number)
-prev_roblox_ID = []
-for rob_sheet_name in roblox_sheet_names[1:]:
-    prev_roblox_data = pd.read_excel(roblox_path, sheet_name=rob_sheet_name, skiprows=1)
-    prev_roblox_ID.append(prev_roblox_data["Romonitor Exp ID"].apply(regex_number))
+prev_roblox_data['ID from URL'] = prev_roblox_data["Romonitor Exp ID"].apply(regex_number)
 
-prev_roblox_IDs = pd.concat(prev_roblox_ID)
 # Identify new entries into top 50 from previous week
-if not prev_roblox_data.empty:
-    old_experiences = set(prev_roblox_IDs)
-    new_experiences = set(curr_roblox_data['ID from URL'])
-    roblox_new_entries = new_experiences - old_experiences
-    roblox_new_entries_df = curr_roblox_data[curr_roblox_data['ID from URL'].isin(roblox_new_entries)].sort_index().reset_index(drop=True)
-
-else:
-    roblox_new_entries_df = pd.DataFrame()
+old_experiences = set(prev_roblox_data['ID from URL'])
+new_experiences = set(curr_roblox_data['ID from URL'])
+roblox_new_entries = new_experiences - old_experiences
+roblox_new_entries_df = curr_roblox_data[curr_roblox_data['ID from URL'].isin(roblox_new_entries)].sort_index().reset_index(drop=True)
 
 # Ensure 'Release Date' is in datetime format
 curr_roblox_data['Release Date'] = pd.to_datetime(curr_roblox_data['Release Date'], errors='coerce')
@@ -182,6 +172,14 @@ roblox_new_entries_df["Release Date"] = pd.to_datetime(roblox_new_entries_df["Re
 
 # Identify new releases in the past year that are in the current week's Top 50
 roblox_new_releases = curr_roblox_data[curr_roblox_data['Release Date'] >= one_year_ago].sort_index().reset_index(drop=True)
+
+# Convert 'Romonitor Ranking' columns to numeric, coercing errors to NaN
+merged_roblox_data = curr_roblox_data.merge(prev_roblox_data, on='ID from URL', suffixes=('_curr', '_prev'))
+merged_roblox_data['Romonitor Ranking_curr'] = pd.to_numeric(merged_roblox_data['Romonitor Ranking_curr'].str.replace('#', ''), errors='coerce')
+merged_roblox_data['Romonitor Ranking_prev'] = pd.to_numeric(merged_roblox_data['Romonitor Ranking_prev'].str.replace('#', ''), errors='coerce')
+
+# Identify experiences that jumped >15 spots in Romonitor Ranking
+rank_jumps = merged_roblox_data[merged_roblox_data['Romonitor Ranking_prev'] - merged_roblox_data['Romonitor Ranking_curr'] > 15]
 
 # Drop these columns before creating snapshot
 roblox_drop_columns = ['Favourites', 'Likes', 'Dislikes','Romonitor Exp ID','ID from URL']
@@ -197,7 +195,7 @@ if not curr_roblox_data.empty:
     st.subheader("Top 10 Roblox Experiences")
     st.dataframe(curr_roblox_data.head(10).drop(columns=roblox_drop_columns))
 else:
-    st.info(f"No Roblox Experiences... ask helen.")
+    st.info(f"No Roblox Experiences... ask Alson.")
 
 if not roblox_new_entries_df.empty:
     st.subheader("New Roblox Experience Entrants to Top 50")
@@ -211,6 +209,12 @@ if not climbers.empty:
 else:
     st.info(f"No Roblox Experiences in the Current Week's Top 50 were Released in the Past Year")
 
+# if not rank_jumps.empty:
+#     st.subheader("Roblox Experiences Jumped >15 Spots in Romonitor Ranking")
+#     st.dataframe(rank_jumps[['Experience Name_curr', 'Romonitor Ranking_curr', 'Romonitor Ranking_prev']])
+# else:
+#     st.info("No Roblox Experiences Jumped >15 Spots in Romonitor Ranking")
+
 # New section to share lists
 
 # if not climbers.empty:
@@ -218,7 +222,6 @@ else:
 #     st.dataframe(climbers[['Game', 'Climber Filtered']])
 # else:
 #     st.info("No Steam Titles Climbed >15 Ranks.")
-
 
 st.warning(body="If any steam game has data fields missing, it is either the steam deck or it's NSFW...", icon="⚠️")
 
