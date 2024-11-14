@@ -21,6 +21,8 @@ roblox_sheet_names = pd.ExcelFile(roblox_path).sheet_names
 st.title("Weekly Roblox and Steam Trends")
 
 curr_tuesday = pd.to_datetime(steam_sheet_names[0], yearfirst=True)
+# orubt*
+# print(curr_tuesday)
 
 last_tuesday = curr_tuesday - pd.DateOffset(weeks=1)
 one_year_ago = curr_tuesday - pd.DateOffset(years=1)
@@ -85,6 +87,13 @@ steam_drop_columns = ['Game Genre',
 # data processing steam
 steam_data = steam_data[reordered_columns]
 new_released = steam_data[(steam_data['Game Release Date'] <= curr_tuesday) & (steam_data['Game Release Date'] >= last_tuesday)].set_index(["Game Ranking"])
+print(new_released["Game Release Date"])
+print(new_released)
+print("Curr_Tuesday")
+print(curr_tuesday)
+print("Last_Tuesday")
+print(last_tuesday)
+
 new_entrants = steam_data[(steam_data["Number of Appearances in Weekly Top 100"] == 1) & (steam_data["Game Weekly Change"] == "NEW")].set_index(["Game Ranking"])
 steam_data['Climber Filtered'] = steam_data['Game Weekly Change'].apply(filter_greater_than)
 climbers = steam_data.dropna(subset=['Climber Filtered']).set_index(["Game Ranking"])
