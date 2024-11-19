@@ -124,24 +124,24 @@ top_10_steam_games_by_24H_peak = total_steam_charts[columns]
 
 if not total_steam_charts.empty:
     st.subheader("Top 10 Steam Games by 24H Peak Players")
-    st.table(top_10_steam_games_by_24H_peak)
+    st.table(top_10_steam_games_by_24H_peak.style.format({"Peak Players": "{:,.0f}", "Current Players": "{:,.0f}", "Hours Played": "{:,.0f}"}))
 else:
     st.info("No Steam Charts available.")
 
 if not new_released.empty:
     st.subheader("Titles in Global Top 100 Sellers Released in the Past Week")
-    st.dataframe(new_released)
+    st.dataframe(new_released.style.format({"Game Price USD": "{:,.2f}"}))
 else:
     st.info(f"There were no new titles on the top 100 released within the past week")
 if not new_entrants.empty:
     st.subheader("First Time Entrant Titles in Global Top 100 Sellers")
-    st.dataframe(new_entrants)
+    st.dataframe(new_entrants.style.format({"Game Price USD": "{:,.2f}"}))
 else:
     st.info(f"There were no new entrants on the top 100 charts within the last week")
 
 if not climbers.empty:
     st.subheader("Titles Climbed >15 Ranks Since Last Week on Global Top 100 Sellers")
-    st.dataframe(climbers)
+    st.dataframe(climbers.style.format({"Game Price USD": "{:,.2f}", "Climber Filtered": "{:.0f}"}))
 else:
     st.info(f"There were no titles that climbed >15 ranks on top 100 charts for the week of {curr_tuesday} and {last_tuesday}")
 
@@ -202,19 +202,19 @@ roblox_new_releases["Release Date"] = roblox_new_releases["Release Date"].dt.dat
 # steam streamlit dataframes
 if not curr_roblox_data.empty:
     st.subheader("Top 10 Roblox Experiences")
-    st.dataframe(curr_roblox_data.head(10).drop(columns=roblox_drop_columns))
+    st.dataframe(curr_roblox_data.head(10).drop(columns=roblox_drop_columns).style.format({"Rating": "{:,.0f}"}))
 else:
     st.info(f"No Roblox Experiences... ask Alson.")
 
 if not roblox_new_entries_df.empty:
     st.subheader("New Roblox Experience Entrants to Top 50")
-    st.dataframe(roblox_new_entries_df.drop(columns=roblox_drop_columns))
+    st.dataframe(roblox_new_entries_df.drop(columns=roblox_drop_columns).style.format({"Rating": "{:,.0f}"}))
 else:
     st.info(f"No New Roblox Experience Entrants into the Top 50 from Last Week")
 
 if not climbers.empty:
     st.subheader("Roblox Experiences Released in Past Year in Current Week's Top 50")
-    st.dataframe(roblox_new_releases.drop(columns=roblox_drop_columns))
+    st.dataframe(roblox_new_releases.drop(columns=roblox_drop_columns).style.format({"Rating": "{:,.0f}"}))
 else:
     st.info(f"No Roblox Experiences in the Current Week's Top 50 were Released in the Past Year")
 
