@@ -77,7 +77,8 @@ reordered_columns =['Game Ranking',
                     'Game Description',
                     'Game Weekly Change',
                     'Number of Appearances in Weekly Top 100',
-                    'Game Steam Link']
+                    'Game Steam Link',
+                    'Estimated Revenue From Game Sales']
 steam_drop_columns = ['Game Genre',
                       'Game Recent Reviews',
                       'Game Total Reviews',
@@ -130,18 +131,18 @@ else:
 
 if not new_released.empty:
     st.subheader("Titles in Global Top 100 Sellers Released in the Past Week")
-    st.dataframe(new_released.style.format({"Game Price USD": "{:,.2f}"}))
+    st.dataframe(new_released.style.format({"Game Price USD": "{:,.2f}", "Estimated Revenue From Game Sales": "{:.1f}M"}))
 else:
     st.info(f"There were no new titles on the top 100 released within the past week")
 if not new_entrants.empty:
     st.subheader("First Time Entrant Titles in Global Top 100 Sellers")
-    st.dataframe(new_entrants.style.format({"Game Price USD": "{:,.2f}"}))
+    st.dataframe(new_entrants.style.format({"Game Price USD": "{:,.2f}", "Estimated Revenue From Game Sales": "{:.1f}M"}))
 else:
     st.info(f"There were no new entrants on the top 100 charts within the last week")
 
 if not climbers.empty:
     st.subheader("Titles Climbed >15 Ranks Since Last Week on Global Top 100 Sellers")
-    st.dataframe(climbers.style.format({"Game Price USD": "{:,.2f}", "Climber Filtered": "{:.0f}"}))
+    st.dataframe(climbers.style.format({"Game Price USD": "{:,.2f}", "Climber Filtered": "{:.0f}", "Estimated Revenue From Game Sales": "{:.1f}M"}))
 else:
     st.info(f"There were no titles that climbed >15 ranks on top 100 charts for the week of {curr_tuesday} and {last_tuesday}")
 
