@@ -36,7 +36,7 @@ st.info(body = f"🎮 Steam Data scraped on {steam_sheet_names[0]} from Global T
 
 
 # st.warning(body="💡 Note: The next iteration will add estimated revenue/copies sold.")
-st.warning(body="💡 Note: The next iteration will add estimated revenue/copies sold.")
+st.warning(body="💡 Note: Estimated Revneue From Game Sales is derrived from unqiue game owners * game prices")
 
 def filter_greater_than(value):
     try:
